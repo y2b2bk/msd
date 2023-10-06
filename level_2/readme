@@ -1,0 +1,215 @@
+1. Space-Time Power spectra
+
+ * Order of calculations & plotting
+
+ a. ano    :  go to Level 1 - 1.a
+
+ b. zm2    :  meridionally averaging (10S-10N) raw and anomaly data
+
+  Calculation :: msd/level_2/sh/zm2/zm2.sh
+  Results     :: msd/level_1/$var/data/daily.10S10N.${period}.gdat
+               ===> meridionally averaged (10S-10N) raw data
+              :: msd/level_1/$var/data/daily.anom.10S10N.${period}.gdat
+               ===> meridionally averaged (10S-10N) anomaly data
+
+ c. stps    : calculate space-time power spectra
+
+  * all season data
+  Calculation :: msd/level_2/sh/stps/stps.all.sh
+               ===> for all season data (with annual cycle)
+  Results     :: msd/level_2/stps/all/$var/$var
+               ===> space-time power spectra using all season data
+
+  Plotting    :: msd/level_2/sh/stps/fig.all.sh
+  Figures     :: msd/level_2/fig/stps/all/$var.all.png
+
+  * seasonally stratified data
+  Calculation :: msd/level_2/sh/stps/stps.sea.sh
+               ===> for seasonally stratified data (without annual cycle)
+  Results     :: msd/level_2/stps/[win/sum]/$var/$var
+               ===> space-time power spectra using seasonally stratified data
+
+  Plotting    :: msd/level_2/sh/stps/fig.sea.sh
+  Figures     :: msd/level_2/fig/stps/[win/sum]/$var.[win/sum].png
+ 
+ b. filter : filtering daily anomaly using Lanczos filter
+
+  Calculation :: msd/level_1/sh/filter/filter.sh
+  Results     :: msd/level_1/$var/data/daily.filt.20-100.lanz.100.period.gdat
+               ===> 20-100 day filtered data using 201-points Lanczos filter
+ 
+ c. var    : calculate variance using anomaly and filtered data
+
+  Calculation :: msd/level_1/sh/var/var.sh
+  Results     :: msd/level_1/$var/var/raw.[all/win/sum].gdat
+              :: msd/level_1/$var/var/fil.[all/win/sum].gdat
+
+  Plotting    :: msd/level_1/sh/var/fig.sh
+  Figures     :: msd/level_1/fig/var/$var/all/*png - all season
+                 msd/level_1/fig/var/$var/sum/*png - summer
+                 msd/level_1/fig/var/$var/win/*png - winter
+
+2. Combined EOF
+
+ * Order of calculations & plotting
+
+ a. anom   : go to Level 1 1.a ===> for olr, u850, u200
+
+ b. filter : go to Level 1 1.b ===> for olr, u850, u200
+
+ c. zm3    : meridionally averaging (15S-15N) anomaly and filtered data
+  Calculation :: msd/level_2/sh/zm3/zm3.sh
+  Results     :: msd/level_1/$var/data/daily.anom.15S15N.${period}.gdat
+               ===> meridionally averaged (15S-15N) anomaly data
+              :: msd/level_1/$var/data/daily.filt.20-100.lanz.100.10S10N.${period}.gdat
+               ===> meridionally averaged (15S-15N) filtered
+
+ d. ceof   : Combined EOF
+
+  Calculation :: msd/level_2/sh/ceof/ceof.sh
+  Results     :: msd/level_2/$var/ceof/ceof.pct
+               ===> percentage variance
+              :: msd/level_2/$var/ceof/ceof.pct.gdat
+               ===> used in percentage variance plotting
+              :: msd/level_2/$var/ceof/ceof.var
+               ===> percentage variance explained by each mode for each variable
+              :: msd/level_2/$var/ceof/ceof.ev
+               ===> eigen vectors
+              :: msd/level_2/$var/ceof/ceof.ts
+               ===> PC time series
+              :: msd/level_2/$var/ceof/ceof.ts.pr
+               ===> projcected PC time series
+
+ e. sp256   : calculate power spectra using PCs
+            : 183-day daily data is padded onto 256-day segment
+
+  Calculation :: msd/level_2/sh/ceof/sp256.sh
+  Results     :: msd/level_2/ceof/sp256.ts0[1/2]
+               ===> power spectra from PC1 and PC2
+
+ f. pcl     : calculate lead-lag correlation coefficients between
+             PC1 and PC2 from 2.d
+
+  Calculation :: msd/level_2/sh/ceof/pcl.sh
+  Results     :: msd/level_2/ceof/pcl.llreg_2d.gdat
+               ===> lag correlation coefficients
+
+ g. crsp    : cross-spectra between PC1 and PC2 from CEOF
+
+  Calculation :: msd/level_2/sh/ceof/crsp.sh
+  Results     :: msd/level_2/ceof/crsp
+               ===> coherence squared and phase between PC1 and PC2
+              :: msd/level_2/ceof/crsp.moch
+               ===> coherence squared averaged between 30-80 days period
+
+  Plotting    :: msd/level_2/sh/ceof/fig.sh
+  Figures     :: msd/level_2/fig/ceof/ceof.png
+               ===> eigen vectors
+              :: msd/level_2/fig/ceof/pct.png
+               ===> percentage variance
+              :: msd/level_2/fig/ceof/sp256.ts0[1/2].png
+               ===> power spectra using projected PCs
+              :: msd/level_2/fig/ceof/pcl.png
+               ===> lag correlation between PC1 and PC2
+              :: msd/level_2/fig/ceof/crsp.png
+               ===> coherence squared and phase between PC1 and PC2
+
+3. MJO Life cycle composite
+
+ * Order of calculations & plotting
+
+ a. ceof    : go to Level 2 2. Combined EOF
+
+ b. pre_comp: normalize PC 1/2 and determines amplitudes and phases
+ 
+  Calculation :: msd/level_2/sh/comp/pre_comp.sh
+  Results     :: msd/level_2/comp/data/amp_pha
+               ===> amplitude and phase of normalized PC 1/2
+
+ c. comp    : composite the 2d(lon.-lat.)/3d(lon.-pressure) fields
+
+  Calculation :: msd/level_2/sh/comp/comp.sea.sh
+  Results     :: msd/level_2/comp/$var/comp.[win/sum].gdat
+               ===> composited data in 8 phases
+                 msd/level_2/comp/$var/n_comp.[win/sum].gdat
+               ===> number of days for each phases (for plotting)
+
+  Plotting    :: msd/level_2/sh/comp/fig_2d.sea.sh
+  Figures     :: msd/level_2/fig/comp/2d/comp.$var.[win/sum].png
+               ===> composited field (longitude-latitude)
+
+  Plotting    :: msd/level_2/sh/comp/fig_2d.flux_with_olr.sea.sh
+  Figures     :: msd/level_2/fig/comp/2d_olr/comp.$var.[win/sum].png
+               ===> composited field with contoured OLR (longitude-latitude)
+
+  Plotting    :: msd/level_2/sh/comp/fig_wind.sea.sh
+  Figures     :: msd/level_2/fig/comp/wind/comp.$var.[win/sum].png
+               ===> composited field with wind vectors (longitude-latitude)
+
+  Plotting    :: msd/level_2/sh/comp/fig_3d.sea.sh
+  Figures     :: msd/level_2/fig/comp/3d/comp.$var.[win/sum].png
+               ===> composited field (longitude-height)
+                
+4. Wheeler-Kiladis diagrams
+
+ * Order of calculations & plotting
+
+ a. anom   : go to Level 1 1.a ===> for olr, u850, u200
+
+ b. seg    : make segments
+
+  Calculation :: msd/level_2/sh/wk99/wk99_1_seg.sh
+  Results     :: msd/level_2/wk99/$var/data/seg96_over60_[sym/asy].gdat
+               ===> 96 days segments with 60 days overlab 
+                   (symmetric/antisymmetric)
+
+ c. power  : calculate power
+
+  Calculation :: msd/level_2/sh/wk99/wk99_2_power.sh
+  Results     :: msd/level_2/wk99/$var/power/power.[sym/asy].gdat
+               ===> wavenumber-frequency power spectra 
+                   (symmetric/antisymmetric)
+
+ d. norm   : normalize the power
+
+  Calculation :: msd/level_2/sh/wk99/wk99_3_norm.sh
+  Results     :: msd/level_2/wk99/$var/power/norm.[sym/asy].gdat
+               ===> normalized wavenumber-frequency power spectra 
+                   (symmetric/antisymmetric)
+  Results     :: msd/level_2/wk99/$var/power/back..gdat
+               ===> background wavenumber-frequency power spectra
+
+  Plotting    :: msd/level_2/sh/wk99/fig.sh
+  Figures     :: msd/level_2/fig/wk99/wk99.$var.png
+               ===> normalized wavenumber-frequency power spectra
+                   (symmetric/antisymmetric)
+
+5. 2D cross spectra between OLR and wind fields
+
+ * Order of calculations & plotting
+
+ a. anom   : go to Level 1 1.a ===> for olr, u850, u200
+
+ b. seg    : make segments
+
+  Calculation :: msd/level_2/sh/coh2/coh2_1_seg.sh
+  Results     :: msd/level_2/coh2/$var/data/seg256_over200_sym_asy.gdat
+               ===> 256 days segments with 200 days overlab 
+                   (symmetric/antisymmetric)
+
+ c. power  : calculate power
+
+  Calculation :: msd/level_2/sh/coh2/coh2_2_power.sh
+  Results     :: msd/level_2/coh2/$var/power/power.[sym/asy].gdat
+               ===> wavenumber-frequency power spectra and co-/quadrature-
+                   spectra (symmetric/antisymmetric)
+
+              :: msd/level_2/coh2/$var/power/coh2.[sym/asy].gdat
+               ===> wavenumber-frequency coherence and phase between
+                   OLR and wind fields (symmetric/antisymmetric)
+
+  Plotting    :: msd/level_2/sh/coh2/fig.sh
+  Figures     :: msd/level_2/fig/coh2/coh2.$var.png
+               ===> wavenumber-frequency coherence and phase between
+                   OLR and wind fields (symmetric/antisymmetric)
+

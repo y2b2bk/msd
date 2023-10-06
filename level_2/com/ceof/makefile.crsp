@@ -1,0 +1,12 @@
+FC   = gfortran
+FOBJ =  libfftpack.a
+
+crsp:  crsp.f90 $(FOBJ)
+	$(FC) $(FFLAGS) $? -o $@
+
+#
+#       "make clean" invokes this part:
+#
+clean:
+	rm -f sswm sswm*.o core *.o fort.* GNFB08 gmeta
+	ls -al

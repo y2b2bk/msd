@@ -1,0 +1,138 @@
+1. Variance Maps
+
+ * Order of calculations & plotting
+
+ a. ano    : calculate daliy climatology and anomaly
+
+  Calculation :: msd/level_1/sh/ano/ano.sh
+  Results     :: msd/level_1/$var/data/daily.anom.${period}.gdat
+               ===> anomaly data obtained by subtracting climatological
+                  daily annual cycle
+ 
+ b. filter : filtering daily anomaly using Lanczos filter
+
+  Calculation :: msd/level_1/sh/filter/filter.sh
+  Results     :: msd/level_1/$var/data/daily.filt.20-100.lanz.100.period.gdat
+               ===> 20-100 day filtered data using 201-points Lanczos filter
+ 
+ c. var    : calculate variance using anomaly and filtered data
+
+  Calculation :: msd/level_1/sh/var/var.sh
+  Results     :: msd/level_1/$var/var/raw.[all/win/sum].gdat
+              :: msd/level_1/$var/var/fil.[all/win/sum].gdat
+
+  Plotting    :: msd/level_1/sh/var/fig.sh
+  Figures     :: msd/level_1/fig/var/$var/all/*gif - all season
+                 msd/level_1/fig/var/$var/sum/*gif - summer
+                 msd/level_1/fig/var/$var/win/*gif - winter
+
+2. Time Series Power Spectra
+
+ * Order of calculations & plotting
+
+ a. aave   : area averging before calculate power spectra
+
+  Calculation :: msd/level_1/sh/aave/aave.sh
+  Results     :: msd/level_1/$var/data/${region}.[win/sum].series
+               ===> area averaged time series
+
+ b. tsps   : calculate power spectra using area averaged data
+
+  Calculation :: msd/level_1/sh/tsps/tsps.sh
+  Results     :: msd/level_1/$var/tsps/${region}.[win/sum]
+               ===> power spectra 
+
+  Plotting    :: msd/level_1/sh/tsps/fig.sh
+  Figures     :: msd/level_1/fig/tsps/$var/${region}.[win/sum].gif
+
+3. EOF's
+
+ * Order of calculations & plotting
+
+ a. anom   : go to 1.a
+
+ b. filter : go to 1.b
+
+ c. 5x5    : interpolate filtered (1.b) data to have 5'x5' resolution
+
+  Calculation :: msd/level_1/sh/5x5/5x5.sh
+  Results     :: msd/level_1/$var/data/daily.5x5.anom.${period}.gdat
+               ===> interpolated anomaly data (for projected PC)
+              :: msd/level_1/$var/data/daily.5x5.filt.20-100.lanz.100.${period}.gdat
+               ===> interpolated filtered data (for eof)
+
+ d. eof    : calculate EOFs (empirical orthogonal function) 
+
+  Calculation :: msd/level_1/sh/eof/eof.sh
+  Results     :: msd/level_1/$var/eof/[win/sum]/eof.pct
+               ===> percentage variance
+              :: msd/level_1/$var/eof/[win/sum]/eof.pct.gdat
+               ===> used in percentage variance plotting
+              :: msd/level_1/$var/eof/[win/sum]/eof.ev
+               ===> eigen vectors
+              :: msd/level_1/$var/eof/[win/sum]/eof.ts
+               ===> PC time series
+              :: msd/level_1/$var/eof/[win/sum]/eof.ts.pr
+               ===> projcected PC time series
+
+ e. pcps   : calculate power spectra using projected PCs (3.b)
+
+  Calculation :: msd/level_1/sh/eof/pcps.sh
+  Results     :: msd/level_1/$var/eof/[win/sum]/pcps.ts0[1/2/3/4/5].[win/sum]
+               ===> power spectra from projcected PC time series
+
+  Plotting    :: msd/level_1/sh/eof/fig.sh
+  Figures     :: msd/level_1/fig/eof/$var/eof.[win/sum].gif
+               ===> eigen vectors
+              :: msd/level_1/fig/eof/$var/pct.[win/sum].gif
+               ===> percentage variance
+              :: msd/level_1/fig/eof/$var/pcps.ts0[1/2/3/4/5].[win/sum].gif
+               ===> power spectra using projected PCs
+
+4. Lag Correlations
+
+ * Order of calculations & plotting
+
+ a. ano    : go to 1.a
+
+ b. filter : go to 1.b
+
+ c. 5x5    : go to 3.d
+
+ d  eof    : go to 3.d
+
+ e. pcl    : calculate lead-lag correlation coefficients between
+             PC1 and PC2 from 3.d
+
+  Calculation :: msd/level_1/sh/pcl/pcl.sh
+  Results     :: msd/level_1/$var/eof/[win/sum]/pcl.llreg_2d.gdat
+               ===> lag correlation coefficients
+
+  Plotting    :: msd/level_1/sh/pcl/fig.sh
+  Figures     :: msd/level_1/fig/pcl/$var/pcl.[win/sum].gif
+               ===> lag correlation between PC1 and PC2 from EOF
+
+ f. zm     : meridionally/zonally averaging filtered data (1.b)
+
+  Calculation :: msd/level_1/sh/zm/zm.sh
+  Results     :: msd/level_1/$var/data/daily.filt.20-100.lanz.100.10S10N.${period}.gdat
+               ===> meridionally averaged (10S-10N) 
+              :: msd/level_1/$var/data/daily.filt.20-100.lanz.100.80E100E.${period}.gdat
+               ===> zonally average (80E-100E)
+              :: msd/level_1/$var/data/daily.filt.20-100.lanz.100.115E135E.${period}.gdat
+               ===> zonally average (115E-135E)
+
+ g. lgc    : calculate lead-lag correlation coefficients between
+             area averaged time series (2.a) and meridionally/zonally averaged
+             filtered data (4.f)
+
+  Calculation :: msd/level_1/sh/lgc/lgc.sh
+  Results     :: msd/level_1/$var/lgc/east.[win/sum].llreg_2d.gdat
+               ===> eastward propagation
+              :: msd/level_1/$var/lgc/north[1/2].llreg_2d.gdat
+               ===> northward propagation
+                    (1 = indian ocean, 2 = western Pacific)
+  
+  Plotting    :: msd/level_1/sh/lgc/fig.sh
+  Figures     :: msd/level_1/fig/lgc/$var/east.[win/sum].gif
+              :: msd/level_1/fig/lgc/$var/north.[io/wp].gif

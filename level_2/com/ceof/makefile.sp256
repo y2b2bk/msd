@@ -1,0 +1,16 @@
+#FC   = f90
+FC = gfortran
+FOBJ =  libfftpack.a
+
+sp256:  sp256.o $(FOBJ)
+	$(FC) $(FFLAGS) $? -o $@ 
+
+sp256.o: sp256.f90
+	$(FC) $(FFLAGS) -c $<
+
+#
+#       "make clean" invokes this part:
+#
+clean:
+	rm -f sswm sswm*.o core *.o fort.* GNFB08 gmeta
+	ls -al
